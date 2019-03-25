@@ -34,6 +34,14 @@
             class="item">{{item}}</li>
       </ul>
     </div>
+
+    <div class="list-fixed"
+         ref='fixed'
+         v-show="fixedTItle">
+      <h1 class="fixed-title">
+        {{fixedTItle}}
+      </h1>
+    </div>
   </scroll>
 </template>
 
@@ -42,6 +50,7 @@ import Scroll from 'base/scroll/scroll'
 import { getData } from 'common/js/dom'
 
 const ANCHOR_HEIGHT = 18
+const TITLE_HEIGHT = 30
 export default {
   created () {
     this.touch = {}
@@ -53,12 +62,15 @@ export default {
     data: {
       type: Array,
       dafault: []
+
     }
   },
   data () {
     return {
       scrollY: -1,
-      currentIndex: 0
+      currentIndex: 0,
+      diff: -1
+
     }
   },
   computed: {
@@ -66,20 +78,26 @@ export default {
       return this.data.map((group) => {
         return group.title.substr(0, 1)
       })
+    },
+    fixedTItle () {
+      if (this.scrollY > 0) {
+        return
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   methods: {
+    // 点击实现联动
     onShortcutTouchStart (e) {
-      console.log(1)
       let anchorIndex = getData(e.target, 'index')
       let firstTouch = e.touches[0]
       this.touch.y1 = firstTouch.pageY
       this.touch.anchorIndex = anchorIndex
-      console.log(anchorIndex)
       this.$refs.listview.scrollToElement(this.$refs.listGroup[anchorIndex], 0)
       this._scrollTo(anchorIndex)
     },
     onShortcutTouchMove (e) {
+      // 滑动实现联动、
       let firstTouch = e.touches[0]
       this.touch.y2 = firstTouch.pageY
       let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
@@ -92,50 +110,59 @@ export default {
     _scrollTo (index) {
       this.scrollY = -this.listHeight[index]
       this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
-    }
+    },
     // 计算商品列表高度
-    // _calculateHeight () {
-    //   this.listHeight = []
-    //   // 获取到所有到列表
-    //   const list = this.$refs.listGroup
-    //   // 第一次高度肯定为0
-    //   let height = 0
-    //   this.listHeight.push(height)
-    //   for (let i = 0; i < list.length; i++) {
-    //     let item = list[i]
-    //     height += item.clientHeight
-
-    //     this.listHeight.push(height)
-    //   }
-    // }
+    _calculateHeight () {
+      this.listHeight = []
+      // 获取到所有到列表
+      const list = this.$refs.listGroup
+      // 第一次高度肯定为0
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < list.length; i++) {
+        let item = list[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+    }
   },
-  // watch: {
-  //   data () {
-  //     setTimeout(() => {
-  //       // this._calculateHeight()
-  //     }, 20)
-  //   },
-  //   scrollY (newY) {
-  //     const listHeight = this.listHeight
-  //     // 判断区间  newY > 0
-  //     if (newY > 0) {
-  //       this.currentIndex = 0
-  //       return
-  //     }
-  //     // 判断区间  中间部分
-  //     for (let i = 0; i < listHeight.length - 1; i++) {
-  //       let height1 = listHeight[i]
-  //       let height2 = listHeight[i + 1]
-  //       // eslint-disable-next-line no-mixed-operators
-  //       if (-newY >= height1 && -newY < height2) {
-  //         this.currentIndex = i
-  //         return
-  //       }
-  //     }
-  //     // 滚动底部且-newy > 最后一个元素到上限
-  //     this.currentIndex = listHeight.length - 2
-  //   }
-  // },
+  watch: {
+    data () {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    },
+    scrollY (newY) {
+      const listHeight = this.listHeight
+      // 判断区间  newY > 0
+      if (newY > 0) {
+        this.currentIndex = 0
+        return
+      }
+      // 判断区间  中间部分
+      for (let i = 0; i < listHeight.length - 1; i++) {
+        let height1 = listHeight[i]
+        let height2 = listHeight[i + 1]
+        // eslint-disable-next-line no-mixed-operators
+        if (-newY >= height1 && -newY < height2) {
+          this.currentIndex = i
+          this.diff = height2 + newY
+          console.log(this.diff)
+          return
+        }
+      }
+      // 滚动底部且-newy > 最后一个元素到上限
+      this.currentIndex = listHeight.length - 2
+    },
+    diff (newval) {
+      let fixedTop = (newval > 0 && newval < TITLE_HEIGHT) ? newval - TITLE_HEIGHT : 0
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      this.fixedTop = fixedTop
+      this.$refs.fixed.style.transform = `translate3d(0, ${fixedTop}px , 0)`
+    }
+  },
   components: {
     Scroll
   }
