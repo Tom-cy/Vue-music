@@ -12,6 +12,7 @@ import { getSingerList } from 'api/singer'
 import Listview from 'base/listview/listview'
 import { ERR_OK } from 'api/config'
 import Singer from 'common/js/singer'
+
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
 export default {
