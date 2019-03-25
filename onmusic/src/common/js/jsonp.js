@@ -1,21 +1,4 @@
 import originJSONP from 'jsonp'
-// import Axios from 'axios'
-// export default function jsonp(url, data, option) {
-//   // url的拼接
-//   url += (url.indexOf('?') < 0 ? '?' : '&') + param(data)
-//   // 函数返回一个Promise对象
-//   return new Promise((resolve, reject) => {
-//     // 通过Promise执行获取数据的方法
-//     JSONP(url, option, (err, data) => {
-//       // console.log(1)
-//       if (!err) {
-//         resolve(data)
-//       } else {
-//         reject(err)
-//       }
-//     })
-//   })
-// }
 
 export default function jsonp(url, data, option) {
   // url的拼接

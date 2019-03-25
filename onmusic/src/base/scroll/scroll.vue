@@ -20,6 +20,11 @@ export default {
     data: {
       type: Array,
       default: null
+    },
+    // 监听滚动事件
+    listenScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted () {
@@ -36,6 +41,12 @@ export default {
         probeType: this.probeType,
         click: this.click
       })
+      if (this.listenScroll) {
+        let me = this
+        this.scroll.on('scroll', (pos) => {
+          me.$emit('scroll', pos)
+        })
+      }
     },
     // 组件自带的方法
     enable () {
@@ -46,7 +57,15 @@ export default {
     },
     refresh () {
       this.scroll && this.scroll.refresh()
+    },
+    scrollTo () {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+    },
+    // 滚动到哪
+    scrollToElement () {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
     }
+
   },
   watch: {
     data () {

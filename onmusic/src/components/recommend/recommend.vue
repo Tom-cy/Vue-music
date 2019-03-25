@@ -76,6 +76,7 @@
 
 <script>
 import { getRecommendData, getDiscList } from 'api/getRecommend'
+
 import { ERR_OK } from 'api/config'
 import Slider from 'base/slider/slider'
 import Scroll from 'base/scroll/scroll'
@@ -94,12 +95,14 @@ export default {
     Slider,
     Scroll,
     Loading
+
   },
   created () {
     this._getRecommendData()
     this._getDiscList()
   },
   methods: {
+
     _getRecommendData () {
       getRecommendData().then((res) => {
         if (res.code === ERR_OK) {
@@ -112,7 +115,6 @@ export default {
     },
     _getDiscList () {
       getDiscList().then((res) => {
-        console.log(res)
         this.discList = res.data.list
       })
     },
